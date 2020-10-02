@@ -10,22 +10,25 @@ import {
   Button,
   Paper,
 } from "@material-ui/core";
+const countryInfo = require("../raw/country_list.json");
 
+//Fn. :  input param is url (string) and returns fetched data for the same
 const fetchJson = async (url) => {
   const response = await fetch(url);
   return response.json();
 };
 
+//Fn. : input params is object, checks if the object is empty and returns
 const checkEmpObj = (obj) => {
   const isEmptyObj =
     Object.keys(obj).length === 0 && obj.constructor === Object;
   return isEmptyObj;
 };
 
+//Renders Homepage : After private Route verification through local storage, contains currency conversion and logout view
 const HomePage = () => {
   const history = useHistory();
   const [currencyInfo, setCurrencyInfo] = useState({});
-
   const [userCurrInfo, setUserCurrInfo] = useState({
     inputCurr: "",
     outputCurr: "",
@@ -33,6 +36,7 @@ const HomePage = () => {
     convertAmt: 0,
   });
 
+  // set the currency information usin the API on Mount
   useEffect(() => {
     fetchJson("https://api.exchangeratesapi.io/latest").then((data) =>
       setCurrencyInfo(data)
@@ -70,7 +74,7 @@ const HomePage = () => {
           </h4>
           <div>
             <div>
-              <FormControl style={{ margin: 10, width: 220 }}>
+              <FormControl style={{ margin: 10, width: 300 }}>
                 <InputLabel id="demo-simple-select-label">
                   Input Currency
                 </InputLabel>
@@ -88,7 +92,7 @@ const HomePage = () => {
                     .sort()
                     .map((curr) => (
                       <MenuItem key={curr} value={curr}>
-                        {curr}
+                        {`${curr} - ${countryInfo[0][curr]}`}
                       </MenuItem>
                     ))}
                 </Select>
@@ -123,7 +127,7 @@ const HomePage = () => {
                     .sort()
                     .map((curr) => (
                       <MenuItem key={curr} value={curr}>
-                        {curr}
+                        {`${curr} - ${countryInfo[0][curr]}`}
                       </MenuItem>
                     ))}
                 </Select>
@@ -160,10 +164,9 @@ const HomePage = () => {
 
 export default HomePage;
 
-//Some Apis for use
+//Some Apis to use
 
 //http://ip-api.com/json
 //https://api.exchangeratesapi.io/latest
 //https://api.exchangeratesapi.io/latest?base=USD
 //https://api.coindesk.com/v1/bpi/currentprice.json
-//          onClick={computeConvAmt}
