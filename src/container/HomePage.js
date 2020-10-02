@@ -1,0 +1,169 @@
+import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import {
+  CircularProgress,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  TextField,
+  Button,
+  Paper,
+} from "@material-ui/core";
+
+const fetchJson = async (url) => {
+  const response = await fetch(url);
+  return response.json();
+};
+
+const checkEmpObj = (obj) => {
+  const isEmptyObj =
+    Object.keys(obj).length === 0 && obj.constructor === Object;
+  return isEmptyObj;
+};
+
+const HomePage = () => {
+  const history = useHistory();
+  const [currencyInfo, setCurrencyInfo] = useState({});
+
+  const [userCurrInfo, setUserCurrInfo] = useState({
+    inputCurr: "",
+    outputCurr: "",
+    conversionAmt: 0,
+    convertAmt: 0,
+  });
+
+  useEffect(() => {
+    fetchJson("https://api.exchangeratesapi.io/latest").then((data) =>
+      setCurrencyInfo(data)
+    );
+  }, []);
+
+  const logout = () => {
+    history.push(`/`);
+  };
+  const convertAmt = () => {
+    const amt = (
+      (userCurrInfo.conversionAmt /
+        currencyInfo.rates[userCurrInfo.inputCurr]) *
+      currencyInfo.rates[userCurrInfo.outputCurr]
+    ).toFixed(2);
+    console.log(" amt ", amt);
+    setUserCurrInfo({ ...userCurrInfo, convertedAmt: amt });
+  };
+  return !checkEmpObj(currencyInfo) ? (
+    <div>
+      <div style={{ position: "absolute", right: "0", top: "0" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          style={{ margin: 10 }}
+          onClick={logout}
+        >
+          Logout
+        </Button>
+      </div>
+      <Paper elevation={3}>
+        <div>
+          <h4 style={{ margin: 15, color: "#ff4d82" }}>
+            {`Currency Calculator updated info as per date : ${currencyInfo.date}`}{" "}
+          </h4>
+          <div>
+            <div>
+              <FormControl style={{ margin: 10, width: 220 }}>
+                <InputLabel id="demo-simple-select-label">
+                  Input Currency
+                </InputLabel>
+                <Select
+                  id="demo-simple-select"
+                  value={userCurrInfo.inputCurr}
+                  onChange={(e) =>
+                    setUserCurrInfo({
+                      ...userCurrInfo,
+                      inputCurr: e.target.value,
+                    })
+                  }
+                >
+                  {Object.keys(currencyInfo.rates)
+                    .sort()
+                    .map((curr) => (
+                      <MenuItem key={curr} value={curr}>
+                        {curr}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+              <TextField
+                id="amt"
+                label="Amount to Convert"
+                variant="outlined"
+                type="number"
+                color="secondary"
+                onChange={(e) =>
+                  setUserCurrInfo({
+                    ...userCurrInfo,
+                    conversionAmt: e.target.value,
+                  })
+                }
+                style={{ margin: 10, width: 300 }}
+              />
+              <FormControl style={{ margin: 10, width: 220 }}>
+                <InputLabel>Output Currency</InputLabel>
+                <Select
+                  id="demo-simple-select"
+                  value={userCurrInfo.outputCurr}
+                  onChange={(e) =>
+                    setUserCurrInfo({
+                      ...userCurrInfo,
+                      outputCurr: e.target.value,
+                    })
+                  }
+                >
+                  {Object.keys(currencyInfo.rates)
+                    .sort()
+                    .map((curr) => (
+                      <MenuItem key={curr} value={curr}>
+                        {curr}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </div>
+            <Button
+              variant="outlined"
+              color="secondary"
+              style={{ margin: 10 }}
+              onClick={convertAmt}
+            >
+              Compute
+            </Button>
+            {userCurrInfo.inputCurr.length > 0 &&
+              userCurrInfo.inputCurr === userCurrInfo.outputCurr && (
+                <p style={{ color: "red" }}>
+                  *It may not be useful if input and output currency selected is
+                  same
+                </p>
+              )}
+          </div>
+          {!!userCurrInfo.convertedAmt && (
+            <h3
+              style={{ color: "#ff4d82" }}
+            >{`The Calculated Amount is ${userCurrInfo.convertedAmt} ${userCurrInfo.outputCurr}`}</h3>
+          )}
+        </div>
+      </Paper>
+    </div>
+  ) : (
+    <CircularProgress color="secondary" />
+  );
+};
+
+export default HomePage;
+
+//Some Apis for use
+
+//http://ip-api.com/json
+//https://api.exchangeratesapi.io/latest
+//https://api.exchangeratesapi.io/latest?base=USD
+//https://api.coindesk.com/v1/bpi/currentprice.json
+//          onClick={computeConvAmt}
