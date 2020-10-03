@@ -8,7 +8,7 @@ Material UI is been used for different UI elements.
 
 Once login it lands to HomePage. Which is a basic currency converter,
 Takes input currency, amount and output currency from user.
-Uses Currency Convertor [https://api.exchangeratesapi.io/latest](API)
+Uses Currency Convertor [API] (https://api.exchangeratesapi.io/latest)
 Logut Button to route back to login page.
 Contains basic validation in all pages
 
